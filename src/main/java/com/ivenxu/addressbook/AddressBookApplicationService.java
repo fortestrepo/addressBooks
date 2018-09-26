@@ -40,7 +40,7 @@ public class AddressBookApplicationService {
         addressBook.add(contact);
 	}
 
-	public boolean remove(String bookName, Contact contact) throws NotFoundException {
+	public boolean removeContact(String bookName, Contact contact) throws NotFoundException {
         AddressBook addressBook = findAddressBookByName(bookName);
         return addressBook.getContacts().remove(contact);
 	}
@@ -48,5 +48,11 @@ public class AddressBookApplicationService {
 	public List<Contact> getContacts(String bookName) throws NotFoundException {
         AddressBook addressBook = findAddressBookByName(bookName);
         return addressBook.getContacts();
+	}
+
+	public AddressBook addAddressBook(String bookName) {
+        AddressBook addressBook = new AddressBook(bookName);
+        addressBookRepository.addAddressBook(addressBook);
+        return addressBook;
 	}
 }

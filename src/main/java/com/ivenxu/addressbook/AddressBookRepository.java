@@ -9,4 +9,6 @@ import com.ivenxu.addressbook.model.AddressBook;
 public interface AddressBookRepository {
 
     AddressBook findAddressBookByName(String name);
+
+    AddressBook addAddressBook(AddressBook book);
 }

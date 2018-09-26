@@ -2,6 +2,7 @@ package com.ivenxu.addressbook;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -172,7 +173,7 @@ public class AddressBookApplicationServiceTest {
         final String bookName = "VIP customers";
         AddressBook addressBook = mockAddressBookRepositoryWithSingleBook(bookName, contact);
 
-        boolean removedSuccess = addressBookApplicationService.remove(bookName, contact);
+        boolean removedSuccess = addressBookApplicationService.removeContact(bookName, contact);
 
         assertTrue("Contact should be remove successfully.", removedSuccess);
         assertAddressBookNotContainsContact(addressBook, contact);
@@ -193,7 +194,7 @@ public class AddressBookApplicationServiceTest {
         final String bookName = "VIP customers";
         mockAddressBookRepositoryWithSingleBook(bookName);
 
-        boolean removedSuccess = addressBookApplicationService.remove(bookName, contact);
+        boolean removedSuccess = addressBookApplicationService.removeContact(bookName, contact);
 
         assertFalse("Contact should be remove successfully.", removedSuccess);
    
@@ -215,7 +216,7 @@ public class AddressBookApplicationServiceTest {
         final String bookName = "VIP customers";
         AddressBook addressBook = mockAddressBookRepositoryWithSingleBook(bookName, contact1, contact2);
 
-        boolean removedSuccess = addressBookApplicationService.remove(bookName, contact1);
+        boolean removedSuccess = addressBookApplicationService.removeContact(bookName, contact1);
 
         assertTrue("Contact should be remove successfully.", removedSuccess);
         assertAddressBookNotContainsContact(addressBook, contact1);
@@ -246,12 +247,30 @@ public class AddressBookApplicationServiceTest {
     }
 
     /**
-     * Verify the use case of "Users should be able to maintain multiple address books"
+     * Verify the use case of "Users should be able to maintain multiple address
+     * books"
+     * 
+     * @throws NotFoundException
      * 
      */
     @Test
-    public void shouldBeAbleToAddMulitpleAddressBooks() {
-        assertTrue(true);
+    public void shouldBeAbleToAddMulitpleAddressBooks() throws NotFoundException {
+        final String vipBookName = "VIP Customers";
+        final String silverBookName = "Silver Members";
+        AddressBook actualVipBook = addressBookApplicationService.addAddressBook(vipBookName);
+        AddressBook actualSilverBook = addressBookApplicationService.addAddressBook(silverBookName);
+        mockAddressBookRepositoryWithSingleBook(vipBookName);
+        mockAddressBookRepositoryWithSingleBook(silverBookName);
+
+        assertNotNull("Should add address book successfully.", actualVipBook);
+        assertNotNull("Should add address book successfully.", actualSilverBook);
+        assertEquals("The address book name should be correct.", vipBookName, actualVipBook.getBookName());
+        assertEquals("The address book name should be correct.", silverBookName, actualSilverBook.getBookName());
+        AddressBook expectedVipBook = addressBookApplicationService.findAddressBookByName(vipBookName);
+        AddressBook expectedSilverBook = addressBookApplicationService.findAddressBookByName(silverBookName);
+        assertEquals("Should be able to find the book just added.", expectedVipBook, actualVipBook);
+        assertEquals("Should be able to find the book just added.", expectedSilverBook, actualSilverBook);
+
     }
 
 
