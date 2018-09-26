@@ -121,7 +121,7 @@ public class AddressBookApplicationServiceTest {
      /**
      * Negative case of "Users should be able to add new contact entries".
      * 
-     * Which can't find the address book for the name
+     * Scenario:  Which can't find the address book for the name
      * 
      * @throws NotFoundException
      * @throws DuplicatedEntityException
@@ -139,7 +139,7 @@ public class AddressBookApplicationServiceTest {
     /**
      * Negative case of "Users should be able to add new contact entries".
      * 
-     * Should not allow user to duplicated contact to one book
+     * Scenario: Should not allow user to duplicated contact to one book
      * 
      * @throws DuplicatedEntityException
      * @throws NotFoundException
@@ -159,6 +159,8 @@ public class AddressBookApplicationServiceTest {
      * Verify the use case of "Users should be able to remove existing contact
      * entries"
      * 
+     * Scenario: Single address book with single target contact
+     * 
      * @throws NotFoundException
      * 
      */
@@ -172,6 +174,51 @@ public class AddressBookApplicationServiceTest {
 
         assertTrue("Contact should be remove successfully.", removedSuccess);
         assertAddressBookNotContainsContact(addressBook, contact);
+    }
+
+    /**
+     * Verify the use case of "Users should be able to remove existing contact
+     * entries"
+     * 
+     * Scenario: Address book doesn't have the target contact to remove
+     * 
+     * @throws NotFoundException
+     * 
+     */
+    @Test
+    public void targetContactNotInAddressBook() throws NotFoundException {
+        Contact contact = new Contact("Nicolas Cage", "0467 777 888");
+        final String bookName = "VIP customers";
+        mockAddressBookRepositoryWithSingleBook(bookName);
+
+        boolean removedSuccess = addressBookApplicationService.remove(bookName, contact);
+
+        assertFalse("Contact should be remove successfully.", removedSuccess);
+   
+    }
+
+    /**
+     * Verify the use case of "Users should be able to remove existing contact
+     * entries"
+     * 
+     * Scenario: Address book has the target contact and other contacts
+     * 
+     * @throws NotFoundException
+     * 
+     */
+    @Test
+    public void shouldRemoveTargetContactSuccessfullyAndKeekRemainingNoChange() throws NotFoundException {
+        Contact contact1 = new Contact("Nicolas Cage", "0467 777 888");
+        Contact contact2 = new Contact("Jonathan Vincent", "0400 999 888");
+        final String bookName = "VIP customers";
+        AddressBook addressBook = mockAddressBookRepositoryWithSingleBook(bookName, contact1, contact2);
+
+        boolean removedSuccess = addressBookApplicationService.remove(bookName, contact1);
+
+        assertTrue("Contact should be remove successfully.", removedSuccess);
+        assertAddressBookNotContainsContact(addressBook, contact1);
+        assertAddressBookContainsContact(addressBook, contact2);
+   
     }
 
     /**
