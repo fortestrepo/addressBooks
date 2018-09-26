@@ -1,5 +1,7 @@
 package com.ivenxu.addressbook;
 
+import java.util.List;
+
 import com.ivenxu.addressbook.model.AddressBook;
 import com.ivenxu.addressbook.model.Contact;
 
@@ -41,5 +43,10 @@ public class AddressBookApplicationService {
 	public boolean remove(String bookName, Contact contact) throws NotFoundException {
         AddressBook addressBook = findAddressBookByName(bookName);
         return addressBook.getContacts().remove(contact);
+	}
+
+	public List<Contact> getContacts(String bookName) throws NotFoundException {
+        AddressBook addressBook = findAddressBookByName(bookName);
+        return addressBook.getContacts();
 	}
 }

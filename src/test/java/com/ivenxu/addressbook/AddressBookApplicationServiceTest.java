@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import com.ivenxu.addressbook.model.AddressBook;
 import com.ivenxu.addressbook.model.Contact;
 
@@ -222,12 +224,25 @@ public class AddressBookApplicationServiceTest {
     }
 
     /**
-     * Verify the use case of "Users should be able to print all contacts in an address book"
+     * Verify the use case of "Users should be able to print all contacts in an
+     * address book"
+     * 
+     * @throws NotFoundException
      * 
      */
     @Test
-    public void shouldReturnAllContactsInTheBook() {
-        assertTrue(true);
+    public void shouldReturnAllContactsInTheBook() throws NotFoundException {
+        Contact contact1 = new Contact("Nicolas Cage", "0467 777 888");
+        Contact contact2 = new Contact("Jonathan Vincent", "0400 999 888");
+        Contact contact3 = new Contact("George Clooney", "0444 666 888");
+        final String bookName = "VIP customers";
+        mockAddressBookRepositoryWithSingleBook(bookName, contact1, contact2, contact3);
+
+        List<Contact> contacts = addressBookApplicationService.getContacts(bookName);
+        assertListContainContact(contacts, contact1);
+        assertListContainContact(contacts, contact2);
+        assertListContainContact(contacts, contact3);
+
     }
 
     /**
@@ -277,5 +292,9 @@ public class AddressBookApplicationServiceTest {
 
     private void assertAddressBookNotContainsContact(AddressBook book, Contact contact) {
         assertFalse(String.format("Should not contain contact: %s", contact), book.getContacts().contains(contact));
+    }
+
+    private void assertListContainContact(List<Contact> contacts, Contact contact) {
+        assertTrue(String.format("The list should contain the contact '%s'", contact), contacts.contains(contact));
     }
 }
