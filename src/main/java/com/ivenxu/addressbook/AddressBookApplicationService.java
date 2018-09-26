@@ -31,8 +31,9 @@ public class AddressBookApplicationService {
      * @param addressBookName
      * @param contact
      * @throws NotFoundException
+     * @throws DuplicatedEntityException
      */
-	public void addContact(String addressBookName, Contact contact) throws NotFoundException {
+	public void addContact(String addressBookName, Contact contact) throws NotFoundException, DuplicatedEntityException {
         AddressBook addressBook = findAddressBookByName(addressBookName);
         addressBook.add(contact);
 	}

@@ -2,6 +2,8 @@ package com.ivenxu.addressbook.model;
 
 import java.util.*;
 
+import com.ivenxu.addressbook.DuplicatedEntityException;
+
 /**
  * Domain model of Address Book
  * 
@@ -70,8 +72,13 @@ public class AddressBook {
         this.bookName = bookName;
     }
 
-	public void add(Contact newContact) {
-        getContacts().add(newContact);
+	public void add(Contact newContact) throws DuplicatedEntityException {
+        if (!getContacts().contains(newContact)) {
+            getContacts().add(newContact);
+        } else {
+            throw new DuplicatedEntityException(String.format("Contact '%s' has existed in Address Book '%s' already.", newContact, this));
+        }
+        
 	}
 
 }

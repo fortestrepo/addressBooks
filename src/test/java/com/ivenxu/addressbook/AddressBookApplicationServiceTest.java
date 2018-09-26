@@ -10,12 +10,15 @@ import com.ivenxu.addressbook.model.Contact;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Test for AddressBookApplicationService.
  * 
  * Tests in Application Service serve as acceptance tests.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class AddressBookApplicationServiceTest {
 
     private AddressBookApplicationService addressBookApplicationService;
@@ -103,9 +106,10 @@ public class AddressBookApplicationServiceTest {
      * Verify the use case of "Users should be able to add new contact entries"
      * 
      * @throws NotFoundException
+     * @throws DuplicatedEntityException
      */
     @Test
-    public void shouldBeAbleToAddNewContactToAddressBook() throws NotFoundException {
+    public void shouldBeAbleToAddNewContactToAddressBook() throws NotFoundException, DuplicatedEntityException {
         Contact contact1 = new Contact("Nicolas Cage", "0467 777 888");
         Contact contact2 = new Contact("Jonathan Vincent", "0400 999 888");
         Contact contact3 = new Contact("George Clooney", "0444 666 888");
@@ -129,9 +133,10 @@ public class AddressBookApplicationServiceTest {
      * Which can't find the address book for the name
      * 
      * @throws NotFoundException
+     * @throws DuplicatedEntityException
      */
     @Test(expected = NotFoundException.class)
-    public void shouldNotAllowUserToAddContactToNotExistingBook() throws NotFoundException {
+    public void shouldNotAllowUserToAddContactToNotExistingBook() throws NotFoundException, DuplicatedEntityException {
         Contact contact = new Contact("Nicolas Cage", "0467 777 888");
         final String addressBookName = "VIP customers";
         AddressBook expectedAddressBook = buildSingleContactAddressBook(addressBookName, contact);
@@ -139,6 +144,26 @@ public class AddressBookApplicationServiceTest {
         final String wrongBookName = "Silver members";
 
         addressBookApplicationService.addContact(wrongBookName, contact);
+    }
+
+    /**
+     * Negative case of "Users should be able to add new contact entries".
+     * 
+     * Should not allow user to duplicated contact to one book
+     * 
+     * @throws DuplicatedEntityException
+     * @throws NotFoundException
+     * 
+     */
+    @Test(expected = DuplicatedEntityException.class)
+    public void shouldNotAllowUserToAddDuplicatedContactToTheSameBook() throws NotFoundException, DuplicatedEntityException {
+        Contact contact = new Contact("Nicolas Cage", "0467 777 888");
+        final String bookName = "VIP customers";
+        AddressBook addressBook = new AddressBook(bookName);
+        when(addressBookRepository.findAddressBookByName(bookName)).thenReturn(addressBook);
+
+        addressBookApplicationService.addContact(bookName, contact);
+        addressBookApplicationService.addContact(bookName, contact);
     }
 
     /**
