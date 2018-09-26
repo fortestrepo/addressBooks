@@ -15,14 +15,14 @@ Acceptance Criteria
 * Users should be able to print a unique set of all contacts across multiple address books
 
 # Design assumptions
-In a real world, we should clarify with the product owner with following things,
+In a real world, we should clarify with the product owner for following things,
 * roughly how many contacts in one address book?
 * ask more context or use cases of address book object. 
 
-These are two questions whose answers affect how we are going to model objects. If there's too many contacts per address book, it's not suitable to model the contract as a value object. As for the second point, the purpose of the story is about "keep track of my customer contacts", from this point view, the "Address Book" could be just an attribute or tag of contacts. 
+These are two questions whose answers affect how we are going to model objects. If there's too many contacts per address book, it's not suitable to model the contact as a value object. As for the second point, the purpose of the story is about "keep track of my customer contacts", from this point view, the "Address Book" could be just an attribute or tag of contacts. 
 
 Without the product owner in the coding challege, following assumptions are made,
-* there wouldn't be too many contacts per address book, considering the persona of the story is Branch Manager and the number of customer contacts should be limited;
+* there wouldn't be too many contacts per address book, considering the persona of the story is Branch Manager and the number of customer contacts should be limited for a Branch/Store;
 * the "address book" is mentioned in several acceptance criteria, it's very likely to be an important concept.
 
 Therefore, the design is
