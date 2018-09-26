@@ -15,7 +15,12 @@ public class AddressBookApplicationService {
      * @param name 
      * @return the address book having the name
      */
-    public AddressBook findAddressBookByName(String name) {
-        return addressBookRepository.findAddressBookByName(name);
+    public AddressBook findAddressBookByName(String name) throws NotFoundException {
+        AddressBook addressBook = addressBookRepository.findAddressBookByName(name);
+        if (addressBook != null) {
+            return addressBook;
+        } else {
+            throw new NotFoundException(String.format("Cannot find Address Book for name : '%s'.", name));
+        }
     }
 }

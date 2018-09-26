@@ -1,12 +1,15 @@
 package com.ivenxu.addressbook;
 
-import static org.junit.Assert.*;
-
-import org.junit.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.ivenxu.addressbook.model.AddressBook;
 import com.ivenxu.addressbook.model.Contact;
+
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Test for AddressBookApplicationService.
@@ -27,25 +30,73 @@ public class AddressBookApplicationServiceTest {
     }
 
     /**
-     * Verify the use case of "Address book will hold name and phone numbers of contact entries"
+     * Verify the use case of "Address book will hold name and phone numbers of
+     * contact entries" for single contact in a book
+     * 
+     * @throws NotFoundException
      */
     @Test
-    public void shouldBeAbleToQueryContactDetailViaAddressBook() {
+    public void shouldBeAbleToQuerySingleContactDetailViaAddressBook() throws NotFoundException {
         final String contactName = "Nicolas Cage";
         final String contactPhoneNumber = "0467 777 888";
         final String addressBookName = "VIP customers";
         final Contact expectedContact = new Contact(contactName, contactPhoneNumber);
-        final AddressBook expectedAddressBook = new AddressBook(addressBookName);
-        expectedAddressBook.getContacts().add(expectedContact);
-        when(addressBookRepository.findAddressBookByName(contactName)).thenReturn(expectedAddressBook);
+        final AddressBook expectedAddressBook = buildSingleContactAddressBook(addressBookName, expectedContact);
+        when(addressBookRepository.findAddressBookByName(addressBookName)).thenReturn(expectedAddressBook);
 
-        final AddressBook actualAddressBook = addressBookApplicationService.findAddressBookByName(contactName);
+        final AddressBook actualAddressBook = addressBookApplicationService.findAddressBookByName(addressBookName);
         final Contact actualContact =  actualAddressBook.getContacts().get(0);
 
-        assertEquals(String.format("Should get the correct Address Book for name = '%s'.", contactName), expectedAddressBook, actualAddressBook);
+        assertEquals(String.format("Should get the correct Address Book for name = '%s'.", addressBookName), expectedAddressBook, actualAddressBook);
         assertEquals("Should get the right contact contained in the address book.", expectedContact, actualContact);
         assertEquals("The name of the contact should be correct.", contactName, actualContact.getName());
         assertEquals("The phone name of the contact should be correct.", contactPhoneNumber, actualContact.getPhoneNumber());
+    }
+
+    /**
+     * Negative case of "Address book will hold name and phone numbers of contact
+     * entries".
+     * 
+     * Which can't find the address book for the name
+     * 
+     * @throws NotFoundException
+     */
+    @Test(expected = NotFoundException.class)
+    public void shouldNotReturnAnyAddressBookForWrongNameQuery() throws NotFoundException {
+        final String contactName = "Nicolas Cage";
+        final String contactPhoneNumber = "0467 777 888";
+        final String addressBookName = "VIP customers";
+        AddressBook expectedAddressBook = buildSingleContactAddressBook(addressBookName, contactName, contactPhoneNumber);
+        when(addressBookRepository.findAddressBookByName(addressBookName)).thenReturn(expectedAddressBook);
+        final String searchBookName = "Silver members";
+
+        addressBookApplicationService.findAddressBookByName(searchBookName);
+    }
+
+    /**
+     * Verify the use case of "Address book will hold name and phone numbers of
+     * contact entries" for multiple contacts in a book
+     * 
+     * @throws NotFoundException
+     */
+    @Test
+    public void shouldBeAbleToQueryMultipleContactsDetailViaAddressBook() throws NotFoundException {
+        Contact contact1 = new Contact("Nicolas Cage", "0467 777 888");
+        Contact contact2 = new Contact("Jonathan Vincent", "0400 999 888");
+        Contact contact3 = new Contact("George Clooney", "0444 666 888");
+        final String bookName = "VIP customers";
+        AddressBook expectedAddressBook = new AddressBook(bookName);
+        expectedAddressBook.getContacts().add(contact1);
+        expectedAddressBook.getContacts().add(contact2);
+        expectedAddressBook.getContacts().add(contact3);
+        when(addressBookRepository.findAddressBookByName(bookName)).thenReturn(expectedAddressBook);
+
+        AddressBook actualBook = addressBookApplicationService.findAddressBookByName(bookName);
+
+        assertEquals(String.format("Should get the correct Address Book for name = '%s'.", bookName), expectedAddressBook, actualBook);
+        assertTrue(String.format("Should contain contact: %s", contact1), actualBook.getContacts().contains(contact1));
+        assertTrue(String.format("Should contain contact: %s", contact2), actualBook.getContacts().contains(contact2));
+        assertTrue(String.format("Should contain contact: %s", contact3), actualBook.getContacts().contains(contact3));
     }
 
     /**
@@ -91,5 +142,16 @@ public class AddressBookApplicationServiceTest {
     @Test
     public void shouldReturnContactsCrossingAddressBooks() {
         assertTrue(true);
+    }
+
+    private AddressBook buildSingleContactAddressBook(final String bookName, final String contactName, final String phoneNumber) {
+        Contact contact = new Contact(contactName, phoneNumber);
+        return buildSingleContactAddressBook(bookName, contact);
+    }
+
+    private AddressBook buildSingleContactAddressBook(final String bookName, Contact contact) {
+        AddressBook addressBooke = new AddressBook(bookName);
+        addressBooke.getContacts().add(contact);
+        return addressBooke;
     }
 }
