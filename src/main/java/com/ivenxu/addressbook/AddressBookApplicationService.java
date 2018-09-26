@@ -37,4 +37,9 @@ public class AddressBookApplicationService {
         AddressBook addressBook = findAddressBookByName(addressBookName);
         addressBook.add(contact);
 	}
+
+	public boolean remove(String bookName, Contact contact) throws NotFoundException {
+        AddressBook addressBook = findAddressBookByName(bookName);
+        return addressBook.getContacts().remove(contact);
+	}
 }

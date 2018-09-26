@@ -1,6 +1,7 @@
 package com.ivenxu.addressbook;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -20,7 +21,6 @@ import org.mockito.runners.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AddressBookApplicationServiceTest {
-
     private AddressBookApplicationService addressBookApplicationService;
 
     private AddressBookRepository addressBookRepository;
@@ -44,8 +44,7 @@ public class AddressBookApplicationServiceTest {
         final String contactPhoneNumber = "0467 777 888";
         final String addressBookName = "VIP customers";
         final Contact expectedContact = new Contact(contactName, contactPhoneNumber);
-        final AddressBook expectedAddressBook = buildSingleContactAddressBook(addressBookName, expectedContact);
-        when(addressBookRepository.findAddressBookByName(addressBookName)).thenReturn(expectedAddressBook);
+        final AddressBook expectedAddressBook = mockAddressBookRepositoryWithSingleBook(addressBookName, expectedContact);
 
         final AddressBook actualAddressBook = addressBookApplicationService.findAddressBookByName(addressBookName);
         final Contact actualContact =  actualAddressBook.getContacts().get(0);
@@ -66,12 +65,9 @@ public class AddressBookApplicationServiceTest {
      */
     @Test(expected = NotFoundException.class)
     public void shouldNotReturnAnyAddressBookForWrongNameQuery() throws NotFoundException {
-        final String contactName = "Nicolas Cage";
-        final String contactPhoneNumber = "0467 777 888";
         final String addressBookName = "VIP customers";
-        AddressBook expectedAddressBook = buildSingleContactAddressBook(addressBookName, contactName, contactPhoneNumber);
-        when(addressBookRepository.findAddressBookByName(addressBookName)).thenReturn(expectedAddressBook);
         final String searchBookName = "Silver members";
+        mockAddressBookRepositoryWithSingleBook(addressBookName);
 
         addressBookApplicationService.findAddressBookByName(searchBookName);
     }
@@ -88,11 +84,7 @@ public class AddressBookApplicationServiceTest {
         Contact contact2 = new Contact("Jonathan Vincent", "0400 999 888");
         Contact contact3 = new Contact("George Clooney", "0444 666 888");
         final String bookName = "VIP customers";
-        AddressBook expectedAddressBook = new AddressBook(bookName);
-        expectedAddressBook.getContacts().add(contact1);
-        expectedAddressBook.getContacts().add(contact2);
-        expectedAddressBook.getContacts().add(contact3);
-        when(addressBookRepository.findAddressBookByName(bookName)).thenReturn(expectedAddressBook);
+        AddressBook expectedAddressBook = mockAddressBookRepositoryWithSingleBook(bookName, contact1, contact2, contact3);
 
         AddressBook actualBook = addressBookApplicationService.findAddressBookByName(bookName);
 
@@ -114,8 +106,7 @@ public class AddressBookApplicationServiceTest {
         Contact contact2 = new Contact("Jonathan Vincent", "0400 999 888");
         Contact contact3 = new Contact("George Clooney", "0444 666 888");
         final String bookName = "VIP customers";
-        AddressBook addressBook = new AddressBook(bookName);
-        when(addressBookRepository.findAddressBookByName(bookName)).thenReturn(addressBook);
+        AddressBook addressBook = mockAddressBookRepositoryWithSingleBook(bookName);
 
         addressBookApplicationService.addContact(bookName, contact1);
         addressBookApplicationService.addContact(bookName, contact2);
@@ -139,9 +130,8 @@ public class AddressBookApplicationServiceTest {
     public void shouldNotAllowUserToAddContactToNotExistingBook() throws NotFoundException, DuplicatedEntityException {
         Contact contact = new Contact("Nicolas Cage", "0467 777 888");
         final String addressBookName = "VIP customers";
-        AddressBook expectedAddressBook = buildSingleContactAddressBook(addressBookName, contact);
-        when(addressBookRepository.findAddressBookByName(addressBookName)).thenReturn(expectedAddressBook);
         final String wrongBookName = "Silver members";
+        mockAddressBookRepositoryWithSingleBook(addressBookName);
 
         addressBookApplicationService.addContact(wrongBookName, contact);
     }
@@ -159,20 +149,29 @@ public class AddressBookApplicationServiceTest {
     public void shouldNotAllowUserToAddDuplicatedContactToTheSameBook() throws NotFoundException, DuplicatedEntityException {
         Contact contact = new Contact("Nicolas Cage", "0467 777 888");
         final String bookName = "VIP customers";
-        AddressBook addressBook = new AddressBook(bookName);
-        when(addressBookRepository.findAddressBookByName(bookName)).thenReturn(addressBook);
+        mockAddressBookRepositoryWithSingleBook(bookName);
 
         addressBookApplicationService.addContact(bookName, contact);
         addressBookApplicationService.addContact(bookName, contact);
     }
 
     /**
-     * Verify the use case of "Users should be able to remove existing contact entries"
+     * Verify the use case of "Users should be able to remove existing contact
+     * entries"
+     * 
+     * @throws NotFoundException
      * 
      */
     @Test
-    public void shouldBeAbleToRemoveContactFromAddressBook() {
-        assertTrue(true);
+    public void shouldBeAbleToRemoveContactFromAddressBook() throws NotFoundException {
+        Contact contact = new Contact("Nicolas Cage", "0467 777 888");
+        final String bookName = "VIP customers";
+        AddressBook addressBook = mockAddressBookRepositoryWithSingleBook(bookName, contact);
+
+        boolean removedSuccess = addressBookApplicationService.remove(bookName, contact);
+
+        assertTrue("Contact should be remove successfully.", removedSuccess);
+        assertAddressBookNotContainsContact(addressBook, contact);
     }
 
     /**
@@ -203,6 +202,17 @@ public class AddressBookApplicationServiceTest {
         assertTrue(true);
     }
 
+
+
+    private AddressBook mockAddressBookRepositoryWithSingleBook(final String bookName, Contact... contacts) {
+        AddressBook addressBook = new AddressBook(bookName);
+        for (Contact contact : contacts) {
+            addressBook.getContacts().add(contact);
+        }
+        when(addressBookRepository.findAddressBookByName(bookName)).thenReturn(addressBook);
+        return addressBook;
+    }
+
     private AddressBook buildSingleContactAddressBook(final String bookName, final String contactName, final String phoneNumber) {
         Contact contact = new Contact(contactName, phoneNumber);
         return buildSingleContactAddressBook(bookName, contact);
@@ -216,5 +226,9 @@ public class AddressBookApplicationServiceTest {
 
     private void assertAddressBookContainsContact(AddressBook book, Contact contact) {
         assertTrue(String.format("Should contain contact: %s", contact), book.getContacts().contains(contact));
+    }
+
+    private void assertAddressBookNotContainsContact(AddressBook book, Contact contact) {
+        assertFalse(String.format("Should not contain contact: %s", contact), book.getContacts().contains(contact));
     }
 }
