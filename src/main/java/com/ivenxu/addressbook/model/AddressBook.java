@@ -70,4 +70,8 @@ public class AddressBook {
         this.bookName = bookName;
     }
 
+	public void add(Contact newContact) {
+        getContacts().add(newContact);
+	}
+
 }

@@ -1,6 +1,7 @@
 package com.ivenxu.addressbook;
 
 import com.ivenxu.addressbook.model.AddressBook;
+import com.ivenxu.addressbook.model.Contact;
 
 /**
  * Application Service of Address Book
@@ -23,4 +24,20 @@ public class AddressBookApplicationService {
             throw new NotFoundException(String.format("Cannot find Address Book for name : '%s'.", name));
         }
     }
+
+    /**
+     * Add a contact to a particular {@link Contact} which has specified name.
+     * 
+     * @param addressBookName
+     * @param contactName
+     * @param contactPhoneNumber
+     * @return {@link Contact}
+     * @throws NotFoundException
+     */
+	public Contact addContact(String addressBookName, String contactName, String contactPhoneNumber) throws NotFoundException {
+        AddressBook addressBook = findAddressBookByName(addressBookName);
+        Contact newContact = new Contact(contactName, contactPhoneNumber);
+        addressBook.add(newContact);
+        return newContact;
+	}
 }

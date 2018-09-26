@@ -94,17 +94,31 @@ public class AddressBookApplicationServiceTest {
         AddressBook actualBook = addressBookApplicationService.findAddressBookByName(bookName);
 
         assertEquals(String.format("Should get the correct Address Book for name = '%s'.", bookName), expectedAddressBook, actualBook);
-        assertTrue(String.format("Should contain contact: %s", contact1), actualBook.getContacts().contains(contact1));
-        assertTrue(String.format("Should contain contact: %s", contact2), actualBook.getContacts().contains(contact2));
-        assertTrue(String.format("Should contain contact: %s", contact3), actualBook.getContacts().contains(contact3));
+        assertAddressBookContainsContact(actualBook, contact1);
+        assertAddressBookContainsContact(actualBook, contact2);
+        assertAddressBookContainsContact(actualBook, contact3);
     }
 
     /**
      * Verify the use case of "Users should be able to add new contact entries"
+     * 
+     * @throws NotFoundException
      */
     @Test
-    public void shouldBeAbleToAddNewContactToAddressBook() {
-        assertTrue(true);
+    public void shouldBeAbleToAddNewContactToAddressBook() throws NotFoundException {
+        final String contactName = "Nicolas Cage";
+        final String contactPhoneNumber = "0467 777 888";
+        final String bookName = "VIP customers";
+        AddressBook addressBook = buildSingleContactAddressBook(bookName, contactName, contactPhoneNumber);
+        when(addressBookRepository.findAddressBookByName(bookName)).thenReturn(addressBook);
+        Contact actualContact = addressBookApplicationService.addContact(bookName, contactName, contactPhoneNumber);
+
+        assertEquals("Newly added contact should have corret name.", contactName, actualContact.getName());
+        assertEquals("Newly added contact should have correct phone number.", contactPhoneNumber, actualContact.getPhoneNumber());
+
+        AddressBook actualAddressBook = addressBookApplicationService.findAddressBookByName(bookName);
+        assertAddressBookContainsContact(actualAddressBook, actualContact);
+
     }
 
     /**
@@ -153,5 +167,9 @@ public class AddressBookApplicationServiceTest {
         AddressBook addressBooke = new AddressBook(bookName);
         addressBooke.getContacts().add(contact);
         return addressBooke;
+    }
+
+    private void assertAddressBookContainsContact(AddressBook book, Contact contact) {
+        assertTrue(String.format("Should contain contact: %s", contact), book.getContacts().contains(contact));
     }
 }
