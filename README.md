@@ -19,6 +19,7 @@ In a real world, we should clarify with the product owner for following things,
 * roughly how many contacts in one address book?
 * ask more context or use cases of address book object;
 * how to identify an address book? Should the name of address book be unique or introduce global identifier?
+* whether Name and Phone are the only fields in Contact?
 
 These are two questions whose answers affect how we are going to model objects. If there's too many contacts per address book, it's not suitable to model the contact as a value object. As for the second point, the purpose of the story is about "keep track of my customer contacts", from this point view, the "Address Book" could be just an attribute or tag of contacts. 
 

@@ -106,19 +106,39 @@ public class AddressBookApplicationServiceTest {
      */
     @Test
     public void shouldBeAbleToAddNewContactToAddressBook() throws NotFoundException {
-        final String contactName = "Nicolas Cage";
-        final String contactPhoneNumber = "0467 777 888";
+        Contact contact1 = new Contact("Nicolas Cage", "0467 777 888");
+        Contact contact2 = new Contact("Jonathan Vincent", "0400 999 888");
+        Contact contact3 = new Contact("George Clooney", "0444 666 888");
         final String bookName = "VIP customers";
-        AddressBook addressBook = buildSingleContactAddressBook(bookName, contactName, contactPhoneNumber);
+        AddressBook addressBook = new AddressBook(bookName);
         when(addressBookRepository.findAddressBookByName(bookName)).thenReturn(addressBook);
-        Contact actualContact = addressBookApplicationService.addContact(bookName, contactName, contactPhoneNumber);
 
-        assertEquals("Newly added contact should have corret name.", contactName, actualContact.getName());
-        assertEquals("Newly added contact should have correct phone number.", contactPhoneNumber, actualContact.getPhoneNumber());
+        addressBookApplicationService.addContact(bookName, contact1);
+        addressBookApplicationService.addContact(bookName, contact2);
+        addressBookApplicationService.addContact(bookName, contact3);
 
-        AddressBook actualAddressBook = addressBookApplicationService.findAddressBookByName(bookName);
-        assertAddressBookContainsContact(actualAddressBook, actualContact);
+        assertAddressBookContainsContact(addressBook, contact1);
+        assertAddressBookContainsContact(addressBook, contact2);
+        assertAddressBookContainsContact(addressBook, contact3);
 
+    }
+
+     /**
+     * Negative case of "Users should be able to add new contact entries".
+     * 
+     * Which can't find the address book for the name
+     * 
+     * @throws NotFoundException
+     */
+    @Test(expected = NotFoundException.class)
+    public void shouldNotAllowUserToAddContactToNotExistingBook() throws NotFoundException {
+        Contact contact = new Contact("Nicolas Cage", "0467 777 888");
+        final String addressBookName = "VIP customers";
+        AddressBook expectedAddressBook = buildSingleContactAddressBook(addressBookName, contact);
+        when(addressBookRepository.findAddressBookByName(addressBookName)).thenReturn(expectedAddressBook);
+        final String wrongBookName = "Silver members";
+
+        addressBookApplicationService.addContact(wrongBookName, contact);
     }
 
     /**

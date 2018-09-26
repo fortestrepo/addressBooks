@@ -29,15 +29,11 @@ public class AddressBookApplicationService {
      * Add a contact to a particular {@link Contact} which has specified name.
      * 
      * @param addressBookName
-     * @param contactName
-     * @param contactPhoneNumber
-     * @return {@link Contact}
+     * @param contact
      * @throws NotFoundException
      */
-	public Contact addContact(String addressBookName, String contactName, String contactPhoneNumber) throws NotFoundException {
+	public void addContact(String addressBookName, Contact contact) throws NotFoundException {
         AddressBook addressBook = findAddressBookByName(addressBookName);
-        Contact newContact = new Contact(contactName, contactPhoneNumber);
-        addressBook.add(newContact);
-        return newContact;
+        addressBook.add(contact);
 	}
 }
