@@ -37,3 +37,7 @@ Therefore, the design is
 ```
 mvn clean install
 ```
+## Integration Tests
+```
+mvn verify
+```

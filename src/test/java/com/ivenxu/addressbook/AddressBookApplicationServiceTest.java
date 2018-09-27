@@ -96,9 +96,9 @@ public class AddressBookApplicationServiceTest {
         AddressBook actualBook = addressBookApplicationService.findAddressBookByName(bookName);
 
         assertEquals(String.format("Should get the correct Address Book for name = '%s'.", bookName), expectedAddressBook, actualBook);
-        assertAddressBookContainsContact(actualBook, contact1);
-        assertAddressBookContainsContact(actualBook, contact2);
-        assertAddressBookContainsContact(actualBook, contact3);
+        AddressBookCustomAsserts.assertAddressBookContainsContact(actualBook, contact1);
+        AddressBookCustomAsserts.assertAddressBookContainsContact(actualBook, contact2);
+        AddressBookCustomAsserts.assertAddressBookContainsContact(actualBook, contact3);
     }
 
     /**
@@ -119,9 +119,9 @@ public class AddressBookApplicationServiceTest {
         addressBookApplicationService.addContact(bookName, contact2);
         addressBookApplicationService.addContact(bookName, contact3);
 
-        assertAddressBookContainsContact(addressBook, contact1);
-        assertAddressBookContainsContact(addressBook, contact2);
-        assertAddressBookContainsContact(addressBook, contact3);
+        AddressBookCustomAsserts.assertAddressBookContainsContact(addressBook, contact1);
+        AddressBookCustomAsserts.assertAddressBookContainsContact(addressBook, contact2);
+        AddressBookCustomAsserts.assertAddressBookContainsContact(addressBook, contact3);
 
     }
 
@@ -178,7 +178,7 @@ public class AddressBookApplicationServiceTest {
         boolean removedSuccess = addressBookApplicationService.removeContact(bookName, contact);
 
         assertTrue("Contact should be remove successfully.", removedSuccess);
-        assertAddressBookNotContainsContact(addressBook, contact);
+        AddressBookCustomAsserts.assertAddressBookNotContainsContact(addressBook, contact);
     }
 
     /**
@@ -216,8 +216,8 @@ public class AddressBookApplicationServiceTest {
         boolean removedSuccess = addressBookApplicationService.removeContact(bookName, contact1);
 
         assertTrue("Contact should be remove successfully.", removedSuccess);
-        assertAddressBookNotContainsContact(addressBook, contact1);
-        assertAddressBookContainsContact(addressBook, contact2);
+        AddressBookCustomAsserts.assertAddressBookNotContainsContact(addressBook, contact1);
+        AddressBookCustomAsserts.assertAddressBookContainsContact(addressBook, contact2);
    
     }
 
@@ -235,9 +235,9 @@ public class AddressBookApplicationServiceTest {
         mockAddressBookRepositoryWithSingleBook(bookName, contact1, contact2, contact3);
 
         List<Contact> contacts = addressBookApplicationService.getContacts(bookName);
-        assertCollectionContainContact(contacts, contact1);
-        assertCollectionContainContact(contacts, contact2);
-        assertCollectionContainContact(contacts, contact3);
+        AddressBookCustomAsserts.assertCollectionContainContact(contacts, contact1);
+        AddressBookCustomAsserts.assertCollectionContainContact(contacts, contact2);
+        AddressBookCustomAsserts.assertCollectionContainContact(contacts, contact3);
 
     }
 
@@ -313,9 +313,9 @@ public class AddressBookApplicationServiceTest {
         Set<Contact> actualContacts = addressBookApplicationService.getContacts(Arrays.asList(vipBookName, silverBookName));
 
         assertEquals("The total number of contacts should be correct.", 3, actualContacts.size());
-        assertCollectionContainContact(actualContacts, contact1);
-        assertCollectionContainContact(actualContacts, contact2);
-        assertCollectionContainContact(actualContacts, contact3);
+        AddressBookCustomAsserts.assertCollectionContainContact(actualContacts, contact1);
+        AddressBookCustomAsserts.assertCollectionContainContact(actualContacts, contact2);
+        AddressBookCustomAsserts.assertCollectionContainContact(actualContacts, contact3);
     }
 
     /**
@@ -337,9 +337,9 @@ public class AddressBookApplicationServiceTest {
         Set<Contact> actualContacts = addressBookApplicationService.getContacts(Arrays.asList(vipBookName, silverBookName));
 
         assertEquals("The total number of contacts should be correct.", 3, actualContacts.size());
-        assertCollectionContainContact(actualContacts, contact1);
-        assertCollectionContainContact(actualContacts, contact2);
-        assertCollectionContainContact(actualContacts, contact3);
+        AddressBookCustomAsserts.assertCollectionContainContact(actualContacts, contact1);
+        AddressBookCustomAsserts.assertCollectionContainContact(actualContacts, contact2);
+        AddressBookCustomAsserts.assertCollectionContainContact(actualContacts, contact3);
     }
 
      /**
@@ -368,15 +368,4 @@ public class AddressBookApplicationServiceTest {
         return addressBook;
     }
 
-    private void assertAddressBookContainsContact(AddressBook book, Contact contact) {
-        assertTrue(String.format("Should contain contact: %s", contact), book.getContacts().contains(contact));
-    }
-
-    private void assertAddressBookNotContainsContact(AddressBook book, Contact contact) {
-        assertFalse(String.format("Should not contain contact: %s", contact), book.getContacts().contains(contact));
-    }
-
-    private void assertCollectionContainContact(Collection<Contact> contacts, Contact contact) {
-        assertTrue(String.format("The list should contain the contact '%s'", contact), contacts.contains(contact));
-    }
 }

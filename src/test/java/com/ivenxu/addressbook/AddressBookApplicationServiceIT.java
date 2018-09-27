@@ -1,6 +1,10 @@
 package com.ivenxu.addressbook;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.Set;
 
 import com.ivenxu.addressbook.infrastructure.AddressBookInMemoryRepository;
 import com.ivenxu.addressbook.model.AddressBook;
@@ -16,8 +20,6 @@ import org.junit.Test;
 public class AddressBookApplicationServiceIT {
 
     private AddressBookApplicationService addressBookApplicationService;
-
-    private AddressBookRepository addressBookRepository;
 
     @Before
     public void setup() {
@@ -43,8 +45,18 @@ public class AddressBookApplicationServiceIT {
 
         AddressBook vipBookInRepository = addressBookApplicationService.findAddressBookByName(vipAddressBookName);
         AddressBook silverBookInRepository = addressBookApplicationService.findAddressBookByName(silverAddressBookName);
+        Set<Contact> uniqueContactsForVipAndSilver = addressBookApplicationService.getContacts(Arrays.asList(vipAddressBookName, silverAddressBookName));
 
         assertEquals("The book in repository should be the some added.", vipBookAdded, vipBookInRepository);
         assertEquals("The book in repository should be the some added.", silverBookAdded, silverBookInRepository);
+        AddressBookCustomAsserts.assertAddressBookContainsContact(vipBookInRepository, contact1);
+        AddressBookCustomAsserts.assertAddressBookContainsContact(vipBookInRepository, contact2);
+        AddressBookCustomAsserts.assertAddressBookContainsContact(silverBookInRepository, contact2);
+        AddressBookCustomAsserts.assertAddressBookContainsContact(silverBookInRepository, contact3);
+        assertTrue("The number of distincted contacts should be correct.", uniqueContactsForVipAndSilver.size() == 3);
+        AddressBookCustomAsserts.assertCollectionContainContact(uniqueContactsForVipAndSilver, contact1);
+        AddressBookCustomAsserts.assertCollectionContainContact(uniqueContactsForVipAndSilver, contact2);
+        AddressBookCustomAsserts.assertCollectionContainContact(uniqueContactsForVipAndSilver, contact3);
+
     }
 }
