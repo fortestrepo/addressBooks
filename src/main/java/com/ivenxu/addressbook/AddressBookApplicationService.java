@@ -19,8 +19,9 @@ public class AddressBookApplicationService {
     /**
      * Return address book object by searching for {@name}
      * 
-     * @param name 
+     * @param name the name of address book
      * @return the address book having the name
+     * @throws NotFoundException when the address book does not exist
      */
     public AddressBook findAddressBookByName(String name) throws NotFoundException {
         AddressBook addressBook = addressBookRepository.findAddressBookByName(name);
@@ -34,24 +35,45 @@ public class AddressBookApplicationService {
     /**
      * Add a contact to a particular {@link Contact} which has specified name.
      * 
-     * @param addressBookName
-     * @param contact
-     * @throws NotFoundException
-     * @throws DuplicatedEntityException
+     * @param addressBookName the name of the address book where the contact to add
+     * @param contact the contact to add
+     * @throws NotFoundException when the address book does not exist
+     * @throws DuplicatedEntityException when the same contact has already added to the address book
      */
 	public void addContact(String addressBookName, Contact contact) throws NotFoundException, DuplicatedEntityException {
         AddressBook addressBook = findAddressBookByName(addressBookName);
         addressBook.add(contact);
 	}
 
-	public boolean removeContact(String bookName, Contact contact) throws NotFoundException {
-        AddressBook addressBook = findAddressBookByName(bookName);
-        return addressBook.getContacts().remove(contact);
+    /**
+     * Remove the {@link Contact} from the {@link AddressBook}.
+     * 
+     * @param bookName name of address book
+     * @param contact the contact to be removed
+     * @return when successfully removed
+     */
+	public boolean removeContact(String bookName, Contact contact) {
+        AddressBook addressBook = addressBookRepository.findAddressBookByName(bookName);
+        if (addressBook != null) {
+            return addressBook.getContacts().remove(contact);
+        } else {
+            return false;
+        }
 	}
 
-	public List<Contact> getContacts(String bookName) throws NotFoundException {
-        AddressBook addressBook = findAddressBookByName(bookName);
+    /**
+     *  List contacts of the {@link AddressBook}.
+     * 
+     * @param bookName the name of the address book
+     * @return the contacts in the book; empty list when there's no such address book
+     */
+	public List<Contact> getContacts(String bookName) {
+        AddressBook addressBook = addressBookRepository.findAddressBookByName(bookName);
+        if (addressBook != null) {
         return addressBook.getContacts();
+        } else {
+            return Collections.emptyList();
+        }
 	}
 
     /**

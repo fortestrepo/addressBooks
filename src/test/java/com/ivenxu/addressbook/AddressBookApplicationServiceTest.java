@@ -3,7 +3,6 @@ package com.ivenxu.addressbook;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -169,11 +168,9 @@ public class AddressBookApplicationServiceTest {
      * 
      * Scenario: Single address book with single target contact
      * 
-     * @throws NotFoundException
-     * 
      */
     @Test
-    public void shouldBeAbleToRemoveContactFromAddressBook() throws NotFoundException {
+    public void shouldBeAbleToRemoveContactFromAddressBook() {
         Contact contact = new Contact("Nicolas Cage", "0467 777 888");
         final String bookName = "VIP customers";
         AddressBook addressBook = mockAddressBookRepositoryWithSingleBook(bookName, contact);
@@ -189,12 +186,9 @@ public class AddressBookApplicationServiceTest {
      * entries"
      * 
      * Scenario: Address book doesn't have the target contact to remove
-     * 
-     * @throws NotFoundException
-     * 
      */
     @Test
-    public void targetContactNotInAddressBook() throws NotFoundException {
+    public void targetContactNotInAddressBook() {
         Contact contact = new Contact("Nicolas Cage", "0467 777 888");
         final String bookName = "VIP customers";
         mockAddressBookRepositoryWithSingleBook(bookName);
@@ -211,11 +205,9 @@ public class AddressBookApplicationServiceTest {
      * 
      * Scenario: Address book has the target contact and other contacts
      * 
-     * @throws NotFoundException
-     * 
      */
     @Test
-    public void shouldRemoveTargetContactSuccessfullyAndKeekRemainingNoChange() throws NotFoundException {
+    public void shouldRemoveTargetContactSuccessfullyAndKeekRemainingNoChange() {
         Contact contact1 = new Contact("Nicolas Cage", "0467 777 888");
         Contact contact2 = new Contact("Jonathan Vincent", "0400 999 888");
         final String bookName = "VIP customers";
@@ -233,11 +225,9 @@ public class AddressBookApplicationServiceTest {
      * Verify the use case of "Users should be able to print all contacts in an
      * address book"
      * 
-     * @throws NotFoundException
-     * 
      */
     @Test
-    public void shouldReturnAllContactsInTheBook() throws NotFoundException {
+    public void shouldReturnAllContactsInTheBook() {
         Contact contact1 = new Contact("Nicolas Cage", "0467 777 888");
         Contact contact2 = new Contact("Jonathan Vincent", "0400 999 888");
         Contact contact3 = new Contact("George Clooney", "0444 666 888");
