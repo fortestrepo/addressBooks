@@ -7,7 +7,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import com.ivenxu.addressbook.model.AddressBook;
 import com.ivenxu.addressbook.model.Contact;
@@ -240,9 +243,9 @@ public class AddressBookApplicationServiceTest {
         mockAddressBookRepositoryWithSingleBook(bookName, contact1, contact2, contact3);
 
         List<Contact> contacts = addressBookApplicationService.getContacts(bookName);
-        assertListContainContact(contacts, contact1);
-        assertListContainContact(contacts, contact2);
-        assertListContainContact(contacts, contact3);
+        assertCollectionContainContact(contacts, contact1);
+        assertCollectionContainContact(contacts, contact2);
+        assertCollectionContainContact(contacts, contact3);
 
     }
 
@@ -250,11 +253,14 @@ public class AddressBookApplicationServiceTest {
      * Verify the use case of "Users should be able to maintain multiple address
      * books"
      * 
+     * Scenario: add multiple address books
+     * 
      * @throws NotFoundException
+     * @throws DuplicatedEntityException
      * 
      */
     @Test
-    public void shouldBeAbleToAddMulitpleAddressBooks() throws NotFoundException {
+    public void shouldBeAbleToAddMulitpleAddressBooks() throws NotFoundException, DuplicatedEntityException {
         final String vipBookName = "VIP Customers";
         final String silverBookName = "Silver Members";
         AddressBook actualVipBook = addressBookApplicationService.addAddressBook(vipBookName);
@@ -273,6 +279,28 @@ public class AddressBookApplicationServiceTest {
 
     }
 
+    /**
+     * Verify the use case of "Users should be able to maintain multiple address
+     * books"
+     * 
+     * Scenario: not allow to add duplicated address books
+     * 
+     * @throws NotFoundException
+     * @throws DuplicatedEntityException
+     * 
+     */
+    @Test(expected = DuplicatedEntityException.class)
+    public void shouldNotAllowDuplicatedAddressBooks() throws NotFoundException, DuplicatedEntityException {
+        final String vipBookName = "VIP Customers";
+        AddressBook actualVipBook = addressBookApplicationService.addAddressBook(vipBookName);
+
+        assertNotNull("The first book should be added successfully.", actualVipBook);
+
+        mockAddressBookRepositoryWithSingleBook(vipBookName);
+
+        addressBookApplicationService.addAddressBook(vipBookName);
+    }
+
 
     /**
      * Verify the requirment of "Users should be able to print a unique set of all contacts across multiple address books"
@@ -280,7 +308,20 @@ public class AddressBookApplicationServiceTest {
      */
     @Test
     public void shouldReturnContactsCrossingAddressBooks() {
-        assertTrue(true);
+        Contact contact1 = new Contact("Nicolas Cage", "0467 777 888");
+        Contact contact2 = new Contact("Jonathan Vincent", "0400 999 888");
+        Contact contact3 = new Contact("George Clooney", "0444 666 888");
+        final String vipBookName = "VIP Customers";
+        final String silverBookName = "Silver Members";
+        mockAddressBookRepositoryWithSingleBook(vipBookName, contact1, contact2);
+        mockAddressBookRepositoryWithSingleBook(silverBookName, contact3);
+
+        Set<Contact> actualContacts = addressBookApplicationService.getContacts(Arrays.asList(vipBookName, silverBookName));
+
+        assertEquals("The total number of contacts should be correct.", 3, actualContacts.size());
+        assertCollectionContainContact(actualContacts, contact1);
+        assertCollectionContainContact(actualContacts, contact2);
+        assertCollectionContainContact(actualContacts, contact3);
     }
 
 
@@ -313,7 +354,7 @@ public class AddressBookApplicationServiceTest {
         assertFalse(String.format("Should not contain contact: %s", contact), book.getContacts().contains(contact));
     }
 
-    private void assertListContainContact(List<Contact> contacts, Contact contact) {
+    private void assertCollectionContainContact(Collection<Contact> contacts, Contact contact) {
         assertTrue(String.format("The list should contain the contact '%s'", contact), contacts.contains(contact));
     }
 }

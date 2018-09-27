@@ -1,6 +1,10 @@
 package com.ivenxu.addressbook;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.ivenxu.addressbook.model.AddressBook;
 import com.ivenxu.addressbook.model.Contact;
@@ -50,9 +54,42 @@ public class AddressBookApplicationService {
         return addressBook.getContacts();
 	}
 
-	public AddressBook addAddressBook(String bookName) {
-        AddressBook addressBook = new AddressBook(bookName);
-        addressBookRepository.addAddressBook(addressBook);
-        return addressBook;
-	}
+    /**
+     * Create a new {@link AddressBook}.
+     * 
+     * @param bookName the name for the new address book
+     * @return the newky created address book
+     * @throws DuplicatedEntityException when the bookName is existing already
+     */
+	public AddressBook addAddressBook(String bookName) throws DuplicatedEntityException {
+        if (null == addressBookRepository.findAddressBookByName(bookName)) {
+            AddressBook addressBook = new AddressBook(bookName);
+            addressBookRepository.addAddressBook(addressBook);
+            return addressBook;
+        } else {
+            throw new DuplicatedEntityException(String.format("Address Book with name '%s' is existing already.", bookName));
+        }
+    }
+    
+
+    /**
+     * List distincted contacts in a list of address book.
+     * 
+     * @param bookNames the book names to query
+     * @return merged contacts set
+     */
+	public Set<Contact> getContacts(List<String> bookNames) {
+		if (bookNames != null) {
+            return bookNames.stream().map(bookName -> {
+                AddressBook addressBook = addressBookRepository.findAddressBookByName(bookName);
+                if (addressBook != null) {
+                    return new HashSet<>(addressBook.getContacts());
+                } else {                    
+                    return new HashSet<Contact>();
+                }
+            }).flatMap(s -> s.stream()).collect(Collectors.toSet());
+        } else {
+            return Collections.emptySet();
+        }
+    }
 }
