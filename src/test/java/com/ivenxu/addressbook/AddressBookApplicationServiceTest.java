@@ -3,12 +3,14 @@ package com.ivenxu.addressbook;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -305,6 +307,8 @@ public class AddressBookApplicationServiceTest {
     /**
      * Verify the requirment of "Users should be able to print a unique set of all contacts across multiple address books"
      * 
+     * Scenario: multiple contacts in multiple address books but no intersected contacts. 
+     * 
      */
     @Test
     public void shouldReturnContactsCrossingAddressBooks() {
@@ -324,7 +328,46 @@ public class AddressBookApplicationServiceTest {
         assertCollectionContainContact(actualContacts, contact3);
     }
 
+    /**
+     * Verify the requirment of "Users should be able to print a unique set of all contacts across multiple address books"
+     * 
+     * Scenario: multiple contacts in multiple address books WITH intersected contacts. 
+     * 
+     */
+    @Test
+    public void shouldReturnContactsCrossingAddressBooksWithDistictedSet() {
+        Contact contact1 = new Contact("Nicolas Cage", "0467 777 888");
+        Contact contact2 = new Contact("Jonathan Vincent", "0400 999 888");
+        Contact contact3 = new Contact("George Clooney", "0444 666 888");
+        final String vipBookName = "VIP Customers";
+        final String silverBookName = "Silver Members";
+        mockAddressBookRepositoryWithSingleBook(vipBookName, contact1, contact2);
+        mockAddressBookRepositoryWithSingleBook(silverBookName, contact1, contact3);
 
+        Set<Contact> actualContacts = addressBookApplicationService.getContacts(Arrays.asList(vipBookName, silverBookName));
+
+        assertEquals("The total number of contacts should be correct.", 3, actualContacts.size());
+        assertCollectionContainContact(actualContacts, contact1);
+        assertCollectionContainContact(actualContacts, contact2);
+        assertCollectionContainContact(actualContacts, contact3);
+    }
+
+     /**
+     * Verify the requirment of "Users should be able to print a unique set of all contacts across multiple address books"
+     * 
+     * Scenario: empty list address book or passing null for search parameter
+     * 
+     */
+    @Test
+    public void shouldGetEmptySetWhenQueryOnEmptyBookList() {
+        Set<Contact> actualContacts = addressBookApplicationService.getContacts(Collections.emptyList());
+        
+        assertTrue("Empty query parameter should return empty set.", actualContacts.size() == 0);
+
+        actualContacts = addressBookApplicationService.getContacts((List<String>)null);
+
+        assertTrue("Passing null as query parameter should return empty set.", actualContacts.size() == 0);
+    }
 
     private AddressBook mockAddressBookRepositoryWithSingleBook(final String bookName, Contact... contacts) {
         AddressBook addressBook = new AddressBook(bookName);
@@ -333,17 +376,6 @@ public class AddressBookApplicationServiceTest {
         }
         when(addressBookRepository.findAddressBookByName(bookName)).thenReturn(addressBook);
         return addressBook;
-    }
-
-    private AddressBook buildSingleContactAddressBook(final String bookName, final String contactName, final String phoneNumber) {
-        Contact contact = new Contact(contactName, phoneNumber);
-        return buildSingleContactAddressBook(bookName, contact);
-    }
-
-    private AddressBook buildSingleContactAddressBook(final String bookName, Contact contact) {
-        AddressBook addressBooke = new AddressBook(bookName);
-        addressBooke.getContacts().add(contact);
-        return addressBooke;
     }
 
     private void assertAddressBookContainsContact(AddressBook book, Contact contact) {
